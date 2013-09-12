@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Capture Photo</title>
+
+<!-- 
+//ColorTeller Version 046, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
+//ColorTeller licensed under GNU General Public License GPL v3
+//Tells you the color of Parts of the image that was captured with the Camera or previous Images on the Phone. You point with your finger on the parts of the image to find out the exact color. 
+//		This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+// 
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+// 
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// 
+//     Dieses Programm ist Freie Software: Sie können es unter den Bedingungen
+//     der GNU General Public License, wie von der Free Software Foundation,
+//     Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+//     veröffentlichten Version, weiterverbreiten und/oder modifizieren.
+// 
+//     Dieses Programm wird in der Hoffnung, dass es nützlich sein wird, aber
+//     OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+//     Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+//     Siehe die GNU General Public License für weitere Details.
+// 
+//     Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
+//     Programm erhalten haben. Wenn nicht, siehe <http://www.gnu.org/licenses/>.    
+ -->
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <script src="jquerys/jquery-1.10.2.min.js" type="text/javascript"></script>	
+    <script type="text/javascript" charset="utf-8" src="js/saveSettings.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/deleteFiles.js"></script>
+    <script type="text/javascript" src="fusion/ntc/rgb2colorname.js"></script>
+    		<link rel="stylesheet" href="css/notification.css">
+    <script type="text/javascript" charset="utf-8">
+
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value
+    var imageNumber = 1.0;   // picture number defining current used Pic for colorfinder
+    var imagepathData = "Init phase.";   // picture path
+    var imagepathPrefix = "";
+    var imagepathPostfix = "";
+    var fileSystem;
+
+    // Wait for device API libraries to load
+    //
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+    // device APIs are available
+    //
+    function onDeviceReady() {
+        pictureSource=navigator.camera.PictureSourceType;
+        destinationType=navigator.camera.DestinationType;
+        //request the persistent file system
+    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, onError);
+    }
+    
+	function onFSSuccess(fileSystem) {
+    	fileSystem = fs;
+	} 
+
+// Wait for page to fully load, Init
+window.onload = function()
+                {
+                   //document.addEventListener("deviceready", onDeviceReady, true);
+                   retrieveData(); 
+                   //increaseImageNumber(); //Next image capture please  
+                   savingData();                
+                };
+
+    // Called when a photo is successfully retrieved
+    //
+    function onPhotoDataSuccess(imageData) {
+      // Uncomment to view the base64-encoded image data
+       console.log('imageData that has to be saved and showed in smallImage ' + imageData);
+
+      // Get image handle
+      //
+      var smallImage = document.getElementById('smallImage');
+
+      // Unhide image elements
+      //
+      smallImage.style.display = 'block';
+
+      // Show the captured photo
+      // The inline CSS rules are used to resize the image
+      //
+      smallImage.src = "data:image/jpeg;base64," + imageData;
+      
+      movePic(imageData);
+    }
+
+    // Called when a photo is successfully retrieved
+    //
+    function onPhotoURISuccess(imageURI) {
+      // Uncomment to view the image file URI
+       console.log(imageURI);
+
+      // Get image handle
+      //
+      var largeImage = document.getElementById('largeImage');
+
+      // Unhide image elements
+      //
+      largeImage.style.display = 'block';
+
+      // Show the captured photo
+      // The inline CSS rules are used to resize the image
+      //
+      largeImage.src = imageURI;
+      //movePic(imageData);
+    }
+
+    // A button will call this function
+    //
+    function capturePhoto() {
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
+        destinationType: destinationType.DATA_URL, saveToPhotoAlbum: true });
+        //movePic(imageData);
+    }
+
+    // A button will call this function
+    //
+    function capturePhotoEdit() {
+      // Take picture using device camera, allow edit, and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 75, allowEdit: true,
+        destinationType: destinationType.FILE_URI, saveToPhotoAlbum: true });
+        //movePic(imageData);
+    }
+
+    // A button will call this function
+    //
+    function getPhoto(source) {
+      // Retrieve image file location from specified source
+      navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50,
+        destinationType: destinationType.FILE_URI,
+        sourceType: source });
+    }
+
+    // Called if something bad happens.
+    //
+    function onFail(message) {
+      alert('Failed because: ' + message);
+    }
+//////////////////////////////
+
+function createLogFile(fs2) {
+
+	var newFileName2 = "currentColorTelling.jpg";
+  fs2.root.getFile(newFileName2, {create: true, exclusive: true}, function(fileEntry) {
+
+    // fileEntry.isFile === true
+    // fileEntry.name == 'currentColorTelling.jpg'
+    // fileEntry.fullPath == '/currentColorTelling.jpg'
+
+  }, errorHandlerCreate);
+
+}
+
+function createLogFileCall() { 
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*1024, createLogFile, errorHandlerCreate);
+} 
+
+function deleteColorTelling(fs2) {
+
+    //new file name for Moving
+    var newFileName = "currentColorTelling.jpg";
+    var myFolderApp = "ColorTeller";
+    
+    //Deleting File
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*1024, function(fs) {
+    
+    //The folder is created if doesn't exist
+    fs.root.getDirectory( myFolderApp,
+                    {create:true, exclusive: false},
+                    function(directory) {
+                    // remove the directory and all it's contents
+					entry.removeRecursively(successDelete, resOnError);
+                    //entry.remove(directory, newFileName,  successDelete, resOnError);
+                    }, errorHandler);
+                    
+    //Deleting currentColorTelling.jpg in root
+  	fs.root.getFile(newFileName, {create: false}, function(fileEntry) {
+
+    fs.remove(function() {
+      console.log('File currentColorTelling.jpg in root removed.');
+    }, errorHandler);
+
+  }, errorHandler);
+  
+}, errorHandler);
+
+
+}
+
+function deleteColorTelling2(e) {
+var oldFileName = "currentColorTelling" + imageNumber + ".jpg";
+    fileSystem.root.getFile(oldFileName, {create:true}, function(f) {
+        f.remove(function() {
+            //alert(oldFileName + 'removed. ');
+            fadingNotification(oldFileName + 'removed. ', 3000);
+        });
+    }, deleteColorTelling2Error);
+}
+
+function movePic(file){ 
+    window.resolveLocalFileSystemURI(file, resolveOnSuccess, resOnError); 
+    increaseImageNumber(); //Next image capture please  
+    savingData(); 
+} 
+
+//Callback function when the file system uri has been resolved
+function resolveOnSuccess(entry){ 
+//     var d = new Date();
+//     var n = d.getTime();
+//     //new file name
+//     var newFileName = n + ".jpg";
+//     var myFolderApp = "ColorTeller";
+        
+    //new file name for Moving
+    if(imageNumber > 1){
+    	oldimageNumber = imageNumber -1;
+		}
+	else{
+    	oldimageNumber = imageNumber;
+		}
+    var newFileName = "currentColorTelling" + imageNumber + ".jpg";
+    var oldFileName = "currentColorTelling" + oldimageNumber + ".jpg";
+    var myFolderApp = ""; // earlier "ColorTeller"
+    
+//     //Deleting File
+//     window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*1024, function(fs) {
+//     
+//     //The folder is created if doesn't exist
+//     fs.root.getDirectory( myFolderApp,
+//                     {create:true, exclusive: false},
+//                     function(directory) {
+//                         entry.remove(directory, newFileName,  successDelete, resOnError);
+//                         entry.remove(directory, oldFileName,  successDelete, resOnError);
+//                     }, errorHandler);
+//                     
+//     //Deleting new currentColorTelling.jpg in root
+//   	fs.root.getFile(newFileName, {create: false}, function(fileEntry) {
+// 
+//     fs.remove(function() {
+//       console.log('File new currentColorTelling.jpg in root removed.');
+//     }, errorHandlerDelRootNew);
+// 
+//   }, errorHandlerDelRootNew2);
+// 
+//     //Deleting old currentColorTelling.jpg in root
+//   	fs.root.getFile(oldFileName, {create: false}, function(fileEntry) {
+// 
+//     fs.remove(function() {
+//       console.log('File old currentColorTelling.jpg in root removed.');
+//     }, errorHandlerDelRootOld);
+// 
+//   }, errorHandlerDelRootOld2);
+//   
+// }, errorHandlerDelReq);
+
+
+deleteFileInRoot(newFileName); //Deleting new currentColorTellingN+1.jpg in root
+deleteFileInRoot(oldFileName); //Deleting old currentColorTellingN.jpg in root
+
+	//Moving File
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {      
+    //The folder is created if doesn't exist
+    fileSys.root.getDirectory( myFolderApp,
+                    {create:true, exclusive: false},
+                    function(directory) {
+                        entry.moveTo(directory, newFileName,  successMove, resOnError);
+                    },
+                    resOnError);
+                    },
+    resOnError);
+}
+
+
+//Callback function when the file has been moved successfully - inserting the complete path
+function successMove(entry) {
+    //Store imagepath in session for future use
+    // like to store it in database
+    sessionStorage.setItem('imagepath', entry.fullPath);
+    
+    //var t=setTimeout(function(){alert("Image Saved")},3000);
+    var t=setTimeout(function(){ window.location.href='colorfinder.html'; },005); 
+    //window.location.href='colorfinder.html';
+}
+
+function resOnError(error) {
+    //alert('Save Failed because: ErrorCode ' + error.code);
+    fadingNotification('Save Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function errorHandler(error) {
+    //alert('General Del Failed because: ErrorCode ' + error.code);
+    fadingNotification('General Del Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function errorHandlerDelRootNew(error) {
+    //alert('errorHandlerDelRootNew. Delete Failed because: ErrorCode ' + error.code);
+    fadingNotification('errorHandlerDelRootNew. Delete Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function errorHandlerDelRootNew2(error) {
+    //alert('errorHandlerDelRootNew2. Delete Failed because: ErrorCode ' + error.code);
+    fadingNotification('errorHandlerDelRootNew2. Delete Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function errorHandlerDelRootOld(error) {
+    //alert('errorHandlerDelRootOld. Delete Failed because: ErrorCode ' + error.code);
+    fadingNotification('errorHandlerDelRootOld. Delete Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function errorHandlerDelRootOld2(error) {
+    alert('errorHandlerDelRootOld2. Delete Failed because: ErrorCode ' + error.code);
+    fadingNotification('Save Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function errorHandlerDelReq(error) {
+    alert('errorHandlerDelReq. Delete Failed because: ErrorCode ' + error.code);
+    fadingNotification('Save Failed because: ErrorCode ' + error.code, 3000);
+}
+
+
+function deleteColorTelling2Error(error) {
+    alert('deleteColorTelling2Error. Delete Failed because: ErrorCode ' + error.code);
+    fadingNotification('Save Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function errorHandlerCreate(error) {
+    alert('Creation of Log File Failed because: ErrorCode ' + error.code);
+    fadingNotification('Save Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function successDelete(entry) {
+    alert('Delete Succeded  ');
+    fadingNotification('Save Failed because: ErrorCode ' + error.code, 3000);
+}
+
+    </script>
+  </head>
+  <body>
+  <p>1. Take a Photo with Camera Test</p>
+    <button onclick="capturePhoto();">Capture Photo</button> <br>
+    <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
+    <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
+    <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br>
+    <button onclick="createLogFileCall();">createLogFileCall</button><br>
+    <button onclick="deleteColorTelling();">deleteColorTelling</button><br>
+    <button onclick="deleteColorTelling2();">deleteColorTelling2</button><br>
+    <button onclick="savingData();">savingData</button> <br>  
+  	<button onclick="retrieveData();">retrieveData</button> <br>  
+	<button onclick="increaseImageNumber();">increaseImageNumber</button> <br> 
+    
+    <img style="display:none;width:300px;height:300px;" id="smallImage" src="" />
+    <img style="display:none;" id="largeImage" src="" />
+    
+    <div class="messageBox"> </div> 
+    
+    <big><big><big><big><a
+ href="navigation.html">Go back to Main Application</a><br>
+</big></big></big></big><br>
+  </body>
+</html>

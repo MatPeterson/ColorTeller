@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Name That Color Mini</title>
+
+<script type="text/javascript" src="ntc/ntc.js"></script>
+
+  <script type="text/javascript">
+
+    var n_match  = ntc.name("#7136D8");
+    n_rgb = n_match[0]; // This is the RGB value of the closest matching color
+    n_name = n_match[1]; // This is the text string for the name of the match
+    n_shade_rgb = n_match[2]; // This is the RGB value for the name of colors shade
+    n_shade_name = n_match[3]; // This is the text string for the name of colors shade
+    n_exactmatch = n_match[4]; // True if exact color match, False if close-match
+
+    alert("#7136D8 data is: " + n_match);
+    alert("#7136D8 is in text part 1 exact name:  " + n_match[1]);
+    alert("#7136D8 is in text part 3 name:  " + n_match[3]);
+    alert("n_match length is :  " + n_match.length); 
+
+  </script>
+
+
+</head>
+
+<body>
+The content of the document.
+<p>
+#7136D8 is in text ....
+
+</body>
+
+</html> 

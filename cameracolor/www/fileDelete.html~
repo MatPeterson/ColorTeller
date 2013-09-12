@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FileWriter Example</title>
+
+     <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    // Wait for PhoneGap to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // PhoneGap is ready
+    //
+    function onDeviceReady() {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+    }
+
+    function gotFS(fileSystem) {
+        fileSystem.root.getFile("currentColorTelling2.jpg", {create: false, exclusive: false}, gotFileEntry, fail);
+    }
+
+    function gotFileEntry(fileEntry) {
+        fileEntry.remove(gotFileWriter, fail);
+    }
+
+    function gotFileWriter(writer) {
+            console.log("currentColorTelling2.jpg removed.");
+            alert('currentColorTelling2.jpg removed. ');   
+                }
+
+    function fail(error) {
+        console.log(error.code);
+        alert('Delete Failed with error: ' + error.code); 
+    }
+
+    </script>
+  </head>
+  <body>
+    <h1>Shutting down Application</h1>
+    <p>Deleting left over Files</p>
+    
+    
+        <big><big><big><big><a
+ href="navigation.html">Go back to Main Application</a><br>
+</big></big></big></big><br>
+  </body>
+</html>
