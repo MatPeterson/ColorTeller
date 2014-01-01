@@ -3,7 +3,7 @@
 <meta http-equiv="content-type" content="text/html; charset=windows-1252">
 
 <!-- 
-//ColorTeller Version 061, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
+//ColorTeller Version 072, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
 //ColorTeller licensed under GNU General Public License GPL v3
 //Tells you the color of Parts of the image that was captured with the Camera or previous Images on the Phone. You point with your finger on the parts of the image to find out the exact color. 
 //		This program is free software: you can redistribute it and/or modify
@@ -63,6 +63,7 @@
     var imagepathDataGal = "Init phase.";   // picture path
     var imagepathPrefixGal = "";
     var imagepathPostfixGal = "";
+    var lastImgSource = "";
     
 
     // Wait for device API libraries to load
@@ -237,12 +238,12 @@
     function appendPictureGal(){
     //$("#photos").append("<img src='file://"+path+"'>");
     //$("#appendingPhotos").append('<img id="externalImage" src="file:///mnt/sdcard/currentColorTelling2.jpg" />');
-    $("#appendingPhotos").append(' <div class="ImageColorPickerWrapper"><img style="display: none;" src="' + imagepathDataGal + '" alt="" id="largeImage' + imageNumberGal + '"><canvas height="500" width="500" class="ImageColorPickerCanvas"></canvas></div><div id="result_largeImage' + imageNumberGal + '"></div> ');
+    $("#appendingPhotos").append(' <div class="ImageColorPickerWrapper"><img style="display: none;" src="' + imagepathDataGal + '" alt="" id="largeImageG' + imageNumberGal + '"><canvas height="500" width="500" class="ImageColorPickerCanvas"></canvas></div><div id="result_largeImageG' + imageNumberGal + '"></div> ');
     console.log('<img id="externalImage" src="file:///mnt/sdcard/currentColorTellingG###.jpg" />');
     
       			// init Color Picker of big Capture Editable Photo2, Get Color from Capture Editable Photo
-      $("#largeImage" + imageNumberGal).ImageColorPicker({
-  				afterColorSelected: function(event, color){             $("#result_largeImage" + imageNumberGal).text(color); 
+      $("#largeImageG" + imageNumberGal).ImageColorPicker({
+  				afterColorSelected: function(event, color){             $("#result_largeImageG" + imageNumberGal).text(color); 
   				//alert("Hello afterColorSelected.");
   				rgbToColorName(color); // Convert ColorNr to ColorName
   				 }

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  
+  <!-- 
+//ColorTeller Version 061, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
+//ColorTeller licensed under GNU General Public License GPL v3
+//Tells you the color of Parts of the image that was captured with the Camera or previous Images on the Phone. You point with your finger on the parts of the image to find out the exact color. 
+//		This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+// 
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+// 
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// 
+//     Dieses Programm ist Freie Software: Sie können es unter den Bedingungen
+//     der GNU General Public License, wie von der Free Software Foundation,
+//     Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
+//     veröffentlichten Version, weiterverbreiten und/oder modifizieren.
+// 
+//     Dieses Programm wird in der Hoffnung, dass es nützlich sein wird, aber
+//     OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+//     Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+//     Siehe die GNU General Public License für weitere Details.
+// 
+//     Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
+//     Programm erhalten haben. Wenn nicht, siehe <http://www.gnu.org/licenses/>.    
+ -->
+  
+    <title>Shutting down Application, Deleting left over Files</title>
+
+     <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+     <script src="jquerys/jquery-1.10.2.min.js" type="text/javascript"></script>	
+     <script type="text/javascript" charset="utf-8" src="js/saveSettings.js"></script>
+     <script type="text/javascript" charset="utf-8" src="js/deleteFiles.js"></script>
+     <script type="text/javascript" src="fusion/ntc/rgb2colorname.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    
+    var imagepathPrefix = "";
+    var imagepathPostfix = "";
+    var imageNumber = 0;   // picture source
+    var imagepathData = "Init phase.";   // picture source
+    
+    var imageNumberGal = 0.0;   // picture number defining current used Gallery Pic for colorfinder
+    var imagepathDataGal = "Init phase.";   // picture path
+    var imagepathPrefixGal = "";
+    var imagepathPostfixGal = "";
+    
+
+    // Wait for PhoneGap to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // PhoneGap is ready
+    //
+    function onDeviceReady() {
+    	retrieveData(); // Read Settings
+    	deleteFileInRoot(imagepathPrefix + "3" + imagepathPostfix);
+        //deleteNFilesInRoot(3); ////Deleting the first 100 currentColorTellingN.jpg in root
+    }
+
+
+    function deleteButton() {
+    	retrieveData(); // Read Settings
+    	deleteFileInRoot(imagepathPrefix + "3" + imagepathPostfix);
+        //deleteNFilesInRoot(3); ////Deleting the first 100 currentColorTellingN.jpg in root
+    }
+
+function deleteNFilesInRoot(quantity) {
+         //Deleting the first N images called currentColorTellingN.jpg in root
+         
+         for (var i=1;i<(quantity+1) ;i++)
+			{
+				deleteFileInRoot(imagepathPrefix + i + imagepathPostfix);
+			}
+         
+    }
+
+
+    </script>
+
+<style>
+.messageBox {
+width:150px;
+padding:10px;
+border:1px solid #665;
+position:fixed; right:2%;
+top:2%;
+z-index:999;
+-webkit-border-radius: 6px; -moz-border-radius: 6px;}
+</style>    
+  
+<!-- 
+<script>
+$(document).ready(function(){
+setTimeout(function() {
+$('.messageBox').fadeOut('fast');
+}, 5000); // <~~ time in milliseconds
+});
+</script>
+ -->
+  
+  </head>
+  <body>
+    
+     <h1>Shutting down Application</h1>
+    <p>Deleting left over Files</p>
+    
+    <div class="messageBox"> </div> 
+    
+    <button onclick="deleteButton();">deleteButton</button> <br>  
+    
+        <big><big><big><big><a
+ href="navigation.html">Go back to Main Application</a><br>
+</big></big></big></big><br>
+  </body>
+</html>

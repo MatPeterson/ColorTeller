@@ -4,7 +4,7 @@
     <title>Capture Photo</title>
 
 <!-- 
-//ColorTeller Version 061, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
+//ColorTeller Version 072, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
 //ColorTeller licensed under GNU General Public License GPL v3
 //Tells you the color of Parts of the image that was captured with the Camera or previous Images on the Phone. You point with your finger on the parts of the image to find out the exact color. 
 //		This program is free software: you can redistribute it and/or modify
@@ -52,6 +52,7 @@
     var imagepathDataGal = "Init phase.";   // picture path
     var imagepathPrefixGal = "";
     var imagepathPostfixGal = "";
+    var lastImgSource = "";
     var fileSystem;
 
     // Wait for device API libraries to load
@@ -80,11 +81,11 @@ window.onload = function()
                    savingData();                
                 };
 
-    // Called when a photo is successfully retrieved
+    // Called when a photo is successfully retrieved from Camera
     //
     function onPhotoDataSuccess(imageData) {
       // Uncomment to view the base64-encoded image data
-       console.log('imageData that has to be saved and showed in smallImage ' + imageData);
+       console.log('imageData from Camera that has to be saved and showed in smallImage ' + imageData);
 
       // Get image handle
       //
@@ -102,11 +103,11 @@ window.onload = function()
       movePic(imageData);
     }
 
-    // Called when a photo is successfully retrieved
+    // Called when a photo is successfully retrieved from Gallery/Library
     //
     function onPhotoURISuccess(imageURI) {
       // Uncomment to view the image file URI
-       console.log(imageURI);
+       console.log('Photo from Gallery: ' + imageURI);
 
       // Get image handle
       //
@@ -121,11 +122,11 @@ window.onload = function()
       //
       largeImage.src = imageURI;
       //Testing if saving of image in Gallery works
-      movePic(imageURI);
+      movePicGallery(imageURI);
     }
 
     // A button will call this function
-    //
+    //Snap Picture with Camera 
     function capturePhoto() {
       // Take picture using device camera and retrieve image as base64-encoded string
       navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
@@ -134,7 +135,7 @@ window.onload = function()
     }
 
     // A button will call this function
-    //
+    // Snap Picture with Camera editable
     function capturePhotoEdit() {
       // Take picture using device camera, allow edit, and retrieve image as base64-encoded string
       navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 75, allowEdit: true,
@@ -143,7 +144,7 @@ window.onload = function()
     }
 
     // A button will call this function
-    //
+    //Get Photo from Gallery / Library
     function getPhoto(source) {
       // Retrieve image file location from specified source
       navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50,
@@ -224,10 +225,54 @@ function movePic(file){
 } 
 
 function movePicGallery(file){ 
-    window.resolveLocalFileSystemURI(file, resolveOnSuccess, resOnError); 
-    increaseImageNumberGallery(); //Next image from Gallery please  
+    window.resolveLocalFileSystemURI(file, resolveOnSuccessGallery, moveError);
+    //increaseImageNumber(); //Next image capture please  
+    increaseImageNumberGal(); //Next image from Gallery please  
     savingData(); 
+    alert('Moved file: ' + file + ' and increased both IMGnumbers');
 } 
+
+//Callback function when the file system uri has been resolved Gallery
+function resolveOnSuccessGallery(entry){ 
+//     var d = new Date();
+//     var n = d.getTime();
+//     //new file name
+//     var newFileName = n + ".jpg";
+//     var myFolderApp = "ColorTeller";
+        
+    //new file name for Moving
+    if(imageNumber > 1){
+    	oldimageNumber = imageNumber -1;
+		}
+	else{
+    	oldimageNumber = imageNumber;
+		}
+    var newFileName = "currentColorTellingG" + imageNumber + ".jpg";
+    var oldFileName = "currentColorTellingG" + oldimageNumber + ".jpg";
+    var myFolderApp = ""; // earlier "ColorTeller"
+    
+
+
+deleteFileInRoot(newFileName); //Deleting new currentColorTellingN+1.jpg in root
+deleteFileInRoot(oldFileName); //Deleting old currentColorTellingN.jpg in root
+
+	//Moving File
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {      
+    //The folder is created if doesn't exist
+    fileSys.root.getDirectory( myFolderApp,
+                    {create:true, exclusive: false},
+                    function(directory) {
+                        entry.copyTo(directory, newFileName,  successCopy, resOnError);
+                    },
+                    resOnError);
+                    },
+    resOnError);
+    
+    alert('After Move of file: ' + file + ' ...');
+    increaseImageNumberGal(); //Next image from Gallery please  
+    savingData(); 
+}
+
 
 //Callback function when the file system uri has been resolved
 function resolveOnSuccess(entry){ 
@@ -308,9 +353,25 @@ function successMove(entry) {
     //window.location.href='colorfinder.html';
 }
 
+//Callback function when the file has been copied successfully - inserting the complete path
+function successCopy(entry) {
+    //Store imagepath in session for future use
+    // like to store it in database
+    sessionStorage.setItem('imagepath', entry.fullPath);
+    
+    //var t=setTimeout(function(){alert("Image Saved")},3000);
+    var t=setTimeout(function(){ window.location.href='colorfinder.html'; },005); 
+    //window.location.href='colorfinder.html';
+}
+
 function resOnError(error) {
     //alert('Save Failed because: ErrorCode ' + error.code);
     fadingNotification('Save Failed because: ErrorCode ' + error.code, 3000);
+}
+
+function moveError(error) {
+    alert('Moving from Gallery Failed because: ErrorCode ' + error.code);
+    fadingNotification('Moving from Gallery Failed because: ErrorCode ' + error.code, 3000);
 }
 
 function errorHandler(error) {

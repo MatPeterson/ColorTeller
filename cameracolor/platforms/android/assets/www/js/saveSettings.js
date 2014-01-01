@@ -1,4 +1,4 @@
-//ColorTeller Version 061, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
+//ColorTeller Version 072, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
 //ColorTeller licensed under GNU General Public License GPL v3
 //Tells you the color of Parts of the image that was captured with the Camera or previous Images on the Phone. You point with your finger on the parts of the image to find out the exact color. 
 //		This program is free software: you can redistribute it and/or modify
@@ -41,8 +41,9 @@ function savingData() {
     sessionStorage.setItem('imagepathDataGal', "file:///mnt/sdcard/currentColorTellingG" + imageNumberGal + ".jpg");
     sessionStorage.setItem('imagepathPrefixGal', "file:///mnt/sdcard/currentColorTellingG");
     sessionStorage.setItem('imagepathPostfixGal', ".jpg");
+    sessionStorage.setItem('lastImgSourceData', lastImgSource);
     //alert('Saving Data  ' + imageNumber);
-    fadingNotification('Saving Camera Image Nr. ' + imageNumber + 'and Gallery Image Nr. ' + imageNumberGal, 1000);
+    fadingNotification('Saving Camera Image Nr. ' + imageNumber + 'and Gallery Image Nr. ' + imageNumberGal, 5000);
 }
 
 function retrieveData() {
@@ -65,8 +66,12 @@ function retrieveData() {
     imagepathDataGal = savedimagepathGal;
     imageNumberGal = savedimageNumberGal;
     
-    //alert('retrieved Data imageNumber is: ' + savedimageNumber);
-    fadingNotification('retrieved Camera image Number is: ' + savedimageNumber + 'retrieved Gallery image Number is: ' + savedimageNumberGal, 2000);
+    var savedlastImgSource = sessionStorage.getItem('lastImgSourceData');
+    lastImgSource = savedlastImgSource;
+    
+    var message = 'retrieved Camera image Number is: ' + savedimageNumber + ' , retrieved Gallery image Number is: ' + savedimageNumberGal + ' , retrieved savedlastImgSource is: ' + savedlastImgSource;
+    alert(message);
+    fadingNotification( message , 8000);
 }
 
 function increaseImageNumber() {

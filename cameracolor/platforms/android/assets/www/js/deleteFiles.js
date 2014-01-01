@@ -1,4 +1,4 @@
-//ColorTeller Version 061, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
+//ColorTeller Version 072, Eng, Copyright 2013 Matthaeus Peterson, http://www.madcats.de
 //ColorTeller licensed under GNU General Public License GPL v3
 //Tells you the color of Parts of the image that was captured with the Camera or previous Images on the Phone. You point with your finger on the parts of the image to find out the exact color. 
 //		This program is free software: you can redistribute it and/or modify
